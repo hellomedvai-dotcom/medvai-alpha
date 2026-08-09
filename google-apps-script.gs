@@ -27,6 +27,7 @@ function doPost(e) {
     if (sheet.getLastRow() === 0) {
       sheet.appendRow([
         'Timestamp',
+        'Submission Type',
         'Full Name',
         'Email',
         'Role Applied For',
@@ -46,7 +47,7 @@ function doPost(e) {
       ]);
       
       // Style headers: Bold, Dark Background, White Text
-      var headerRange = sheet.getRange(1, 1, 1, 17);
+      var headerRange = sheet.getRange(1, 1, 1, 18);
       headerRange.setFontWeight('bold');
       headerRange.setBackground('#0f172a');
       headerRange.setFontColor('#ffffff');
@@ -59,52 +60,68 @@ function doPost(e) {
       data = JSON.parse(e.postData.contents);
     }
 
+    var submissionType = data.submissionType || 'Job Application';
+
     sheet.appendRow([
       data.timestamp || new Date().toISOString(),
-      data.fullName || '',
-      data.email || '',
-      data.role || '',
-      data.phone || '',
-      data.location || '',
-      data.experience || '',
-      data.availability || '',
-      data.linkedIn || '',
-      data.gitHub || '',
-      data.portfolio || '',
-      data.resumeLink || '',
-      data.q8_strongest_role || '',
-      data.q9_tech_stack || '',
-      data.q10_hours || '',
-      data.q12_motivation || '',
-      data.qaBlob || ''
+      submissionType,
+      data.fullName || 'Not provided',
+      data.email || 'Not provided',
+      data.role || (submissionType === 'Priority Access' ? 'Priority Access' : 'Not provided'),
+      data.phone || 'Not provided',
+      data.location || 'Not provided',
+      data.experience || 'Not provided',
+      data.availability || 'Not provided',
+      data.linkedIn || 'Not provided',
+      data.gitHub || 'Not provided',
+      data.portfolio || 'Not provided',
+      data.resumeLink || 'Not provided',
+      data.q8_strongest_role || 'Not provided',
+      data.q9_tech_stack || 'Not provided',
+      data.q10_hours || 'Not provided',
+      data.q12_motivation || 'Not provided',
+      data.qaBlob || 'Not provided'
     ]);
 
     // Send email notification
-    var emailBody = 'MEDVAI APPLICATION\n\n' +
-      'Name:\n' + (data.fullName || 'Not provided') + '\n\n' +
-      'Email:\n' + (data.email || 'Not provided') + '\n\n' +
-      'Phone:\n' + (data.phone || 'Not provided') + '\n\n' +
-      'Location:\n' + (data.location || 'Not provided') + '\n\n' +
-      'Portfolio:\n' + (data.portfolio || 'Not provided') + '\n\n' +
-      'LinkedIn:\n' + (data.linkedIn || 'Not provided') + '\n\n' +
-      'GitHub:\n' + (data.gitHub || 'Not provided') + '\n\n' +
-      'Experience:\n' + (data.experience || 'Not provided') + '\n\n' +
-      'Availability:\n' + (data.availability || data.q10_hours || 'Not provided') + '\n\n' +
-      'Role:\n' + (data.role || 'Not provided') + '\n\n' +
-      'Role-specific answers:\n\n' +
-      (data.qaBlob || 'Not provided') +
-      'Additional message:\n' + (data.additionalMessage || 'Not provided');
-      
-      
-      MailApp.sendEmail({
-        to: 'hellomedvai@gmail.com',
-        subject: 'New MEDVAI Team Application — ' + (data.role || ''),
-        body: emailBody
-      });
+    var emailBody = '';
+    var emailSubject = '';
 
-      return ContentService
-        .createTextOutput(JSON.stringify({ success: true }))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (submissionType === 'Priority Access') {
+      emailSubject = 'MEDVAI PRIORITY ACCESS — New Submission';
+      emailBody = 'MEDVAI PRIORITY ACCESS\n\n' +
+        'Submission Type:\nPriority Access\n\n' +
+        'Email:\n' + (data.email || 'Not provided') + '\n\n' +
+        'Name:\n' + (data.fullName || 'Not provided') + '\n\n' +
+        'Any other fields:\nNot provided';
+    } else {
+      emailSubject = 'New MEDVAI Team Application — ' + (data.role || 'Unknown Role');
+      emailBody = 'MEDVAI APPLICATION\n\n' +
+        'Submission Type:\nJob Application\n\n' +
+        'Name:\n' + (data.fullName || 'Not provided') + '\n\n' +
+        'Email:\n' + (data.email || 'Not provided') + '\n\n' +
+        'Role:\n' + (data.role || 'Not provided') + '\n\n' +
+        'Phone:\n' + (data.phone || 'Not provided') + '\n\n' +
+        'Location:\n' + (data.location || 'Not provided') + '\n\n' +
+        'Portfolio:\n' + (data.portfolio || 'Not provided') + '\n\n' +
+        'LinkedIn:\n' + (data.linkedIn || 'Not provided') + '\n\n' +
+        'GitHub:\n' + (data.gitHub || 'Not provided') + '\n\n' +
+        'Experience:\n' + (data.experience || 'Not provided') + '\n\n' +
+        'Availability:\n' + (data.availability || data.q10_hours || 'Not provided') + '\n\n' +
+        'Role-specific answers:\n\n' +
+        (data.qaBlob || 'Not provided') +
+        '\n\nAdditional message:\n' + (data.additionalMessage || 'Not provided');
+    }
+      
+    MailApp.sendEmail({
+      to: 'hellomedvai@gmail.com',
+      subject: emailSubject,
+      body: emailBody
+    });
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
     return ContentService

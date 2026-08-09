@@ -266,22 +266,23 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
       }
 
       const payload = {
+        submissionType: 'Job Application',
         timestamp: new Date().toISOString(),
         fullName: details.fullName,
         email: details.email,
         role: details.role,
-        linkedIn: details.linkedIn,
-        gitHub: details.gitHub,
-        portfolio: details.portfolio,
-        resumeLink: details.resumeLink,
-        phone: details.phone || '',
-        location: details.location || '',
-        experience: details.experience || '',
-        availability: details.availability || '',
-        q8_strongest_role: answers[8] as string,
-        q9_tech_stack: answers[9] as string[],
-        q10_hours: answers[10] as string,
-        q12_motivation: answers[12] as string,
+        linkedIn: details.linkedIn || 'Not provided',
+        gitHub: details.gitHub || 'Not provided',
+        portfolio: details.portfolio || 'Not provided',
+        resumeLink: details.resumeLink || 'Not provided',
+        phone: details.phone || 'Not provided',
+        location: details.location || 'Not provided',
+        experience: details.experience || 'Not provided',
+        availability: details.availability || 'Not provided',
+        q8_strongest_role: answers[8] as string || 'Not provided',
+        q9_tech_stack: Array.isArray(answers[9]) ? answers[9].join(', ') : (answers[9] as string || 'Not provided'),
+        q10_hours: answers[10] as string || 'Not provided',
+        q12_motivation: answers[12] as string || 'Not provided',
         qaBlob: qaBlob
       };
 

@@ -13,14 +13,42 @@ export const WaitlistSection: React.FC<WaitlistSectionProps> = ({ theme }) => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) return;
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const scriptUrl = import.meta.env.VITE_GOOGLE_SHEETS_SCRIPT_URL;
+      if (!scriptUrl) {
+        throw new Error('VITE_GOOGLE_SHEETS_SCRIPT_URL is not configured');
+      }
+
+      const payload = {
+        submissionType: 'Priority Access',
+        email: email,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch(scriptUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        throw new Error(result.error || 'Submission failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to submit priority access: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
       setLoading(false);
-      setSubmitted(true);
-    }, 600);
+    }
   };
 
   return (
