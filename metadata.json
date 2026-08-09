@@ -1,0 +1,6 @@
+{
+  "name": "MEDVAI — AI Health Operating System",
+  "description": "The official public website for MEDVAI. Your personal AI health operating system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
